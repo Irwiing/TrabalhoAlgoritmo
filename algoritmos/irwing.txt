@@ -1,0 +1,28 @@
+inicio "Corrida"
+    Declare caractere board[5,5]
+    logico: inGame <- true
+    caractere: c <- ''
+
+    enquanto inGame faca
+        se deveColocarObstaculo() entao
+            colocarObstaculo()
+        fimse
+
+        desenharTela()
+
+
+        escreva("utilize A para mover à esquerda, D para mover à direita e W para não mover")
+        leia direcao
+
+        se direcao == 'A' entao
+            moverEsquerda()
+        fimse
+        senao se direcao == 'B' entao
+            moverDireita()
+        fimse
+
+                se jogadorColidiu() entao
+            inGame = false
+        fimse
+    fim enquanto
+fim
