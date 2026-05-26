@@ -1,10 +1,12 @@
 import os
 from Game import Game
+from Ranking import Ranking
 
 class GUI:
     def __init__(self):
         self.MenuOptions = { 1: "Jogar", 2: "Ranking", 3: "Como Jogar", 4: "Sair" }
         self.game = None
+        self.ranking = Ranking()
 
     def ShowMainMenu(self):
         self.ClearScreen()
@@ -38,9 +40,23 @@ class GUI:
 
     def ShowRankingScreen(self):
         self.ClearScreen()
-        print("Ranking...")
-        print("(Funcionalidade não implementada)")
-        input("Pressione Enter para voltar...")
+        print("╔════════════════════════════════╗")
+        print("║         TOP 10 RANKING          ║")
+        print("╚════════════════════════════════╝")
+        print()
+        
+        rankings = self.ranking.get_top_10()
+        
+        if not rankings:
+            print("Nenhuma pontuação registrada ainda!")
+        else:
+            print("POS  NOME  SCORE")
+            print("-" * 25)
+            for i, entry in enumerate(rankings, 1):
+                print(f"{i:2d}.  {entry['name']:3s}  {entry['score']:4d}")
+        
+        print()
+        input("Pressione Enter para voltar ao menu...")
 
     def DisplayBoard(self, board, score):
         self.ClearScreen()
@@ -90,15 +106,72 @@ class GUI:
             self.game.move_player(player_move)
             self.game.update_game()
         
-        self.ShowGameOverScreen(score)
+        final_score = self.game.get_score()
+        player_name = self.GetPlayerNamePinball()
+        
+        if player_name:
+            self.ranking.add_score(player_name, final_score)
+        
+        self.ShowGameOverScreen(final_score, player_name)
 
-    def ShowGameOverScreen(self, score):
+    def GetPlayerNamePinball(self):
+        self.ClearScreen()
+        print("╔════════════════════════════════╗")
+        print("║      DIGITE SEU NOME (3)        ║")
+        print("╚════════════════════════════════╝")
+        print()
+        
+        name = []
+        letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        current_index = [0, 0, 0]
+        
+        for pos in range(3):
+            while True:
+                self.ClearScreen()
+                print("╔════════════════════════════════╗")
+                print("║      DIGITE SEU NOME (3)        ║")
+                print("╚════════════════════════════════╝")
+                print()
+                
+                display = ""
+                for i in range(3):
+                    if i == pos:
+                        char = letters[current_index[i]]
+                        display += f"[{char}]"
+                    else:
+                        if i < len(name):
+                            display += f" {name[i]} "
+                        else:
+                            display += f" _ "
+                
+                print(f"Nome: {display}")
+                print()
+                print("W - Anterior  |  S - Próximo  |  Enter - Confirmar")
+                
+                try:
+                    key = input().strip().upper()
+                    
+                    if key == 'W':
+                        current_index[pos] = (current_index[pos] - 1) % len(letters)
+                    elif key == 'S':
+                        current_index[pos] = (current_index[pos] + 1) % len(letters)
+                    elif key == '':
+                        name.append(letters[current_index[pos]])
+                        break
+                except:
+                    pass
+        
+        return ''.join(name).upper()
+
+    def ShowGameOverScreen(self, score, player_name=None):
         self.ClearScreen()
         print("╔════════════════╗")
         print("║   GAME OVER!   ║")
         print("╚════════════════╝")
         print()
         print(f"Score Final: {score}")
+        if player_name:
+            print(f"Jogador: {player_name}")
         print()
         input("Pressione Enter para voltar ao menu...")
 
@@ -107,4 +180,5 @@ class GUI:
             _ = os.system('cls')
         else:
             _ = os.system('clear')
+
 
