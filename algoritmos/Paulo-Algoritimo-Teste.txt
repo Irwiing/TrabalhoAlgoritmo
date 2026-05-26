@@ -1,0 +1,253 @@
+algoritmo "Jogo_Obstaculos"
+
+
+// CLASSE OBSTACULOS 
+
+
+tipo
+    TObstaculo = registro
+        posicao : inteiro
+        tipo : caractere
+        ost : inteiro  
+        ativo : logico
+    fimregistro
+
+var
+    // Variáveis globais 
+    LARGURA : inteiro
+    ALTURA : inteiro
+    obstaculos : vetor[1..100] de TObstaculo
+    num_obs : inteiro
+    
+    // Elementos do canvas (simulados)
+    cenario_id : inteiro
+    carro_id : inteiro
+    
+    // Posições dos objetos
+    carro_x : inteiro
+    carro_y : inteiro
+    carro_tamanho : inteiro
+    
+    // Controle do jogo
+    jogo_ativo : logico
+    
+    // Simulação da posição do mouse
+    mouse_x : inteiro
+    mouse_y : inteiro
+
+
+// FUNÇÃO: random
+
+funcao random_int(minimo : inteiro, maximo : inteiro) : inteiro
+inicio
+    retorne aleatorio(minimo, maximo)
+fimfuncao
+
+
+// CONSTRUTOR DA CLASSE
+
+
+procedimento obstaculos_init(canvas_simulado : inteiro)
+var
+    novo_obs : TObstaculo
+    i : inteiro
+    slot_livre : inteiro
+inicio
+    // Encontra um slot livre no vetor
+    slot_livre <- 0
+    para i de 1 ate 100 faca
+        se (obstaculos[i].ativo = FALSO) entao
+            slot_livre <- i
+            i <- 101  // Sai do loop
+        fimse
+    fimpara
+    
+    se (slot_livre > 0) entao
+        // self.position = random.randint(0,750)
+        novo_obs.posicao <- random_int(0, 750)
+        
+        // self.tipe = "Car"
+        novo_obs.tipo <- "Car"
+        
+        // self.ost = self.canvas.create_rectangle(self.position,50,self.position+50,0,fill="gray")
+        novo_obs.ost <- slot_livre  // Simula um ID único
+        novo_obs.ativo <- VERDADEIRO
+        
+        // Armazena o obstáculo
+        obstaculos[slot_livre] <- novo_obs
+        num_obs <- num_obs + 1
+    fimse
+fimprocedimento
+
+
+// MÉTODO: Descer 
+// def Descer(self, janela):
+//     self.canvas.move(self.ost, 0, 5)
+//     janela.after(10, lambda: self.Descer(janela))
+
+procedimento obstaculos_descer(id_obstaculo : inteiro, janela_simulada : inteiro)
+var
+    pos_y_atual : inteiro
+inicio
+    // Simula o movimento para baixo: self.canvas.move(self.ost, 0, 5)
+    // Em Portugol, atualizamos a posição Y do obstáculo
+    pos_y_atual <- pos_y_atual + 5
+    
+    // Simula a recursão do after: janela.after(10, lambda: self.Descer(janela))
+    // NOTA: Portugol não tem temporizador assíncrono.
+    // Esta linha é adaptada como chamada dentro do loop principal
+    // (será chamada repetidamente pelo loop do jogo)
+fimprocedimento
+
+
+// FUNÇÃO: seguir_mouse
+
+procedimento seguir_mouse(x_mouse : inteiro, y_mouse : inteiro)
+var
+    tamanho : inteiro
+inicio
+    tamanho <- 25
+    
+    carro_x <- x_mouse
+    carro_y <- y_mouse
+    carro_tamanho <- tamanho
+    
+fimprocedimento
+
+
+// FUNÇÃO: verificar_colisao 
+
+funcao verificar_colisao() : logico
+var
+    carro_esq : inteiro
+    carro_dir : inteiro
+    carro_cima : inteiro
+    carro_baixo : inteiro
+    i : inteiro
+    obst_esq : inteiro
+    obst_dir : inteiro
+    obst_cima : inteiro
+    obst_baixo : inteiro
+inicio
+    carro_esq <- carro_x - carro_tamanho
+    carro_dir <- carro_x + carro_tamanho
+    carro_cima <- carro_y - carro_tamanho
+    carro_baixo <- carro_y + carro_tamanho
+    
+    para i de 1 ate 100 faca
+        se (obstaculos[i].ativo = VERDADEIRO) entao
+            // if item != Carro and item != cenario:
+            // Como não temos os IDs reais, comparamos pelo tipo e posição
+            se (i <> carro_id e i <> cenario_id) entao
+                // obst_pos = canvas.coords(item)
+                // Simula coordenadas do obstáculo (posicao, 50, posicao+50, 0)
+                obst_esq <- obstaculos[i].posicao
+                obst_dir <- obstaculos[i].posicao + 50
+                obst_cima <- 50
+                obst_baixo <- 0
+                
+                // if (carro_pos[0] < obst_pos[2] and 
+                //     carro_pos[2] > obst_pos[0] and 
+                //     carro_pos[1] < obst_pos[3] and 
+                //     carro_pos[3] > obst_pos[1]):
+                se (carro_esq < obst_dir e 
+                    carro_dir > obst_esq e 
+                    carro_cima < obst_baixo e 
+                    carro_baixo > obst_cima) entao
+                    
+                    retorne VERDADEIRO
+                fimse
+            fimse
+        fimse
+    fimpara
+    
+    retorne FALSO
+fimfuncao
+
+
+// FUNÇÃO: loop 
+
+procedimento loop_principal()
+var
+    obst_id : inteiro
+    contador : inteiro
+inicio
+    contador <- 0
+    
+    enquanto (jogo_ativo = VERDADEIRO) faca
+        obstaculos_init(1)  
+        
+
+        para obst_id de 1 ate 100 faca
+            se (obstaculos[obst_id].ativo = VERDADEIRO) entao
+                obstaculos_descer(obst_id, 1)  
+            fimse
+        fimpara
+        
+        contador <- contador + 1
+        
+
+        se (verificar_colisao() = VERDADEIRO) entao
+
+            carro_id <- 0  
+            
+
+            escreval("Game Over!")
+            
+
+            jogo_ativo <- FALSO
+        fimse
+
+
+        se (contador >= 10) entao
+            contador <- 0
+        fimse
+    fimenquanto
+fimprocedimento
+
+
+inicio
+    escreval("Simulacao: janela = tk.Tk()")
+    escreval("Simulacao: janela.geometry('800x600')")
+    LARGURA <- 800
+    ALTURA <- 600
+    
+
+    escreval("Simulacao: canvas = tk.Canvas(janela, bg='white')")
+    escreval("Simulacao: canvas.pack(fill='both', expand=True)")
+    
+    cenario_id <- 1
+    escreval("Simulacao: cenario = canvas.create_rectangle(800,600,0,0,fill='green')")
+    
+    carro_id <- 2
+    carro_x <- 75  
+    carro_y <- 75 
+    carro_tamanho <- 25
+    escreval("Simulacao: Carro = canvas.create_rectangle(50, 50, 100, 100, fill='red')")
+
+
+    se (verificar_colisao() = FALSO) entao
+        escreval("Simulacao: canvas.bind('<Motion>', seguir_mouse)")
+        escreval("ATENCAO: Em Portugol, use as teclas W/A/S/D para simular o mouse")
+        
+
+        escreval("")
+        escreval("=== CONTROLES SIMULADOS ===")
+        escreval("Use W = mover para cima")
+        escreval("Use S = mover para baixo")
+        escreval("Use A = mover para esquerda")
+        escreval("Use D = mover para direita")
+        escreval("===========================")
+        escreval("")
+    fimse
+
+
+    jogo_ativo <- VERDADEIRO
+    loop_principal()
+    
+
+    escreval("Simulacao: janela.mainloop()")
+    escreval("")
+    escreval("=== FIM DA SIMULACAO ===")
+    
+fimalgoritmo
