@@ -10,18 +10,18 @@ inicio "Corrida"
 
         desenharTela()
 
-
         escreva("utilize A para mover à esquerda, D para mover à direita e W para não mover")
         leia direcao
 
         se direcao == 'A' entao
             moverEsquerda()
         fimse
+
         senao se direcao == 'B' entao
             moverDireita()
         fimse
 
-                se jogadorColidiu() entao
+        se jogadorColidiu() entao
             inGame = false
         fimse
     fim enquanto
