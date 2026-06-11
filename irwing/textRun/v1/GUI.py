@@ -180,5 +180,3 @@ class GUI:
             _ = os.system('cls')
         else:
             _ = os.system('clear')
-
-
